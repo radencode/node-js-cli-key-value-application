@@ -1,0 +1,11 @@
+{
+	"name": "node-js-cli-key-value-application",
+	"version": "1.0.0",
+	"description": "Node.js CLI application that allows you to SET, GET, DELETE and COUNT key value pairs",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"author": "Teddy Radenkov",
+	"license": "MIT"
+}
