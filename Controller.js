@@ -1,8 +1,8 @@
 const messages = require('./messages');
 const Dictionary = require('./Dictionary');
 
-class KeyValue {
-	Set(key, value) {
+class Controller {
+	static Set(key, value) {
 		if (!key || !value) {
 			messages.keyOrValueNull('SET');
 			return;
@@ -11,7 +11,7 @@ class KeyValue {
 		console.log(result);
 	}
 
-	Get(key) {
+	static Get(key) {
 		if (!key) {
 			messages.keyNull('GET');
 			return;
@@ -20,7 +20,7 @@ class KeyValue {
 		console.log(result);
 	}
 
-	Delete(key) {
+	static Delete(key) {
 		if (!key) {
 			messages.keyNull('DELETE');
 			return;
@@ -29,7 +29,7 @@ class KeyValue {
 		console.log(result);
 	}
 
-	Count(value) {
+	static Count(value) {
 		if (!value) {
 			messages.valueNull('COUNT');
 			return;
@@ -39,4 +39,4 @@ class KeyValue {
 	}
 }
 
-module.exports = KeyValue;
+module.exports = Controller;
