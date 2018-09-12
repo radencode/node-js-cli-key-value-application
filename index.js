@@ -1,54 +1,36 @@
-const Controller = require('./Controller');
-const messages = require('./messages');
-const { throttle } = require('./utils');
+const BST = require('./structures/BST'); //Binary Serach Tree holding all commands needed for the program
+const CommandController = require('./controllers/Command'); //Executes the corresponding functions for given command
+const handleError = require('./utils/error'); //Wraps function into try and catch block
+const InputStream = require('./helpers/InputStream'); //Singleton wrapper of process.openStdin(), with a throttle function
+const Parser = require('./helpers/Parser'); //Parses user data and executes controller function
+const UserInterface = require('./controllers/UserInterface'); //Controlls user interface messages
 
-const stdin = process.openStdin();
+//Initilizations
+const commandController = new CommandController();
+const commands = new BST();
 
-const onUserCommand = data => {
-	//Get args out of data buffer
-	const parsedData = data
-		.toString()
-		.trim()
-		.split(' ');
+//Insert all commands with the corresponding callback controller function
+handleError.try(() => {
+    commands.Register('SET', params => commandController.Set(...params));
+    commands.Register('GET', params => commandController.Get(...params));
+    commands.Register('DELETE', params => commandController.Delete(...params));
+    commands.Register('COUNT', params => commandController.Count(...params));
+    commands.Register('HISTORY', () => commandController.History());
+    commands.Register('ROLLBACK', () => commandController.Rollback());
+    commands.Register('EXIT', () => commandController.Exit());
+});
 
-	//Remove white spaces (if any) from parsedData array
-	const argv = parsedData.filter(arg => arg != '');
+//Initialize app with commands object that later will be used to
+//execute the parsed user's command
+const app = new UserInterface(commands);
 
-	//Take out command arguments array
-	const command = argv[0];
+//Initialize parser with callback function that will be executed
+//after the data has been parsed with <argv> (arguments array) passed into it
+const parser = new Parser((argv) => {
+    app.RunCommand(argv[0], argv.slice(1, argv.length));
+});
 
-	switch (command) {
-		case 'SET': {
-			Controller.Set(argv[1], argv[2]);
-			break;
-		}
-		case 'GET': {
-			Controller.Get(argv[1]);
-			break;
-		}
-		case 'DELETE': {
-			Controller.Delete(argv[1]);
-			break;
-		}
-		case 'COUNT': {
-			Controller.Count(argv[1]);
-			break;
-		}
-		case 'EXIT': {
-			messages.exit();
-			process.exit();
-		}
-		default:
-			messages.invalidCommand(command);
-	}
-	//Prompt user to enter a command
-	messages.prompt();
-};
-
-//Print welcome message to user
-messages.welcome();
-//Prompt user to enter a command
-messages.prompt();
-
-//Throttle event listener to not accept multiline input
-stdin.addListener('data', throttle(onUserCommand, 1000));
+//Create input stream with a callback that will execute on user's input
+//Callback: parser function that will use the commands function (previously passed into Parser)
+//to execute the corresponidng command after the data has been parsed 
+InputStream.GetInstance().Listen((data) => parser.ParseData(data));
