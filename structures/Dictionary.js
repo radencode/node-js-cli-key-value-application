@@ -9,14 +9,14 @@ class Dictionary {
 		let exists = false;
 		if (this._dict[key]) exists = true;
 		this._dict[key] = value;
-		return new Response(true, 'success', { dictionary: this._dict });
+		return new Response(true, 'success', { dictionary: {...this._dict} });
 	}
 
 	Remove(key) {
 		if (this._dict[key]) {
 			delete this._dict[key];
 	
-			return new Response(true, 'success', { dictionary: this._dict });
+			return new Response(true, 'success', { dictionary: {...this._dict} });
 		} else {
 			return new Response(false, 'error', { key });
 		}
@@ -42,8 +42,6 @@ class Dictionary {
 	
 	Update(newDict){
 		this._dict = newDict;
-		console.log('UPDATE');
-		console.log(newDict);
 	}
 
 }
